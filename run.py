@@ -6,7 +6,6 @@ from keras.layers import LSTM
 from keras.callbacks import ModelCheckpoint
 from keras.utils import np_utils
 from download import *
-from random import choice
 # load ascii text and covert to lowercase
 raw_text = download_thoughts('aKqi4PTcNaX3yQ','VBYcbJbY28f4Tucd4agH4-5-UsE','ShowerThinker v1.0.0 by u/iTecX').lower()
 # create mapping of unique chars to integers
@@ -19,7 +18,7 @@ n_vocab = len(chars)
 print(("Total Characters: ", n_chars))
 print(("Total Vocab: ", n_vocab))
 # prepare the dataset of input to output pairs encoded as integers
-seq_length = 100
+seq_length = 1000
 dataX = []
 dataY = []
 for i in range(0, n_chars - seq_length, 1):
@@ -43,7 +42,7 @@ model.add(LSTM(256))
 model.add(Dropout(0.2))
 model.add(Dense(y.shape[1], activation='softmax'))
 
-#model.load_weights('best.hdf5')
+model.load_weights('best.hdf5')
 
 model.compile(loss='categorical_crossentropy', optimizer='adam')
 # define the checkpoint
@@ -51,18 +50,12 @@ filepath="best.hdf5"
 checkpoint = ModelCheckpoint(filepath, monitor='loss', verbose=1, save_best_only=True, mode='min')
 callbacks_list = [checkpoint]
 # fit the model
-model.fit(X, y, epochs=5, batch_size=64, callbacks=callbacks_list, use_multiprocessing = True)
+model.fit(X, y, epochs=2, batch_size=64, callbacks=callbacks_list)
 
 # pick a random seed
-<<<<<<< HEAD
 start = numpy.random.randint(0, len(dataX)-1)
 pattern = dataX[start]
-print("Generating from seed:")
-=======
-pattern = choice(raw_text.split('|'))
-pattern = pattern[:int(len(pattern)/4)]
 print("Seed:")
->>>>>>> 3bc129081a6ae9d8f925033a9d32acb839bc12b1
 print("\"", ''.join([int_to_char[value] for value in pattern]), "\"")
 # generate characters
 reslist = []
@@ -73,14 +66,7 @@ for i in range(1000):
 	index = numpy.argmax(prediction)
 	result = int_to_char[index]
 	seq_in = [int_to_char[value] for value in pattern]
-<<<<<<< HEAD
-	print(result.split('|')[0])
-	pattern.append(index)
-	pattern = pattern[1:len(pattern)]
-print("Done.")
-=======
 	reslist.append(result)
 	pattern.append(index)
 	pattern = pattern[1:len(pattern)]
 print(''.join(reslist))
->>>>>>> 3bc129081a6ae9d8f925033a9d32acb839bc12b1
