@@ -5,7 +5,7 @@ from keras.layers import Dropout
 from keras.layers import LSTM
 from keras.callbacks import ModelCheckpoint
 from keras.utils import np_utils
-from .download import *
+from download import *
 # load ascii text and covert to lowercase
 raw_text = download_thoughts('aKqi4PTcNaX3yQ','VBYcbJbY28f4Tucd4agH4-5-UsE','ShowerThinker v1.0.0 by u/iTecX').lower()
 # create mapping of unique chars to integers
