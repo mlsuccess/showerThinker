@@ -4,11 +4,11 @@ from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import Dropout
 from tensorflow.keras.layers import LSTM
 from tensorflow.keras.callbacks import ModelCheckpoint
+import tensorflow as tf
 from keras.utils import np_utils
 from download import *
-from random import choice
-# load ascii text and covert to lowercase
-raw_text = download_thoughts('aKqi4PTcNaX3yQ','VBYcbJbY28f4Tucd4agH4-5-UsE','ShowerThinker v1.0.0 by u/iTecX').lower()
+from random import choice, randint
+raw_text = download_thoughts().lower()
 # create mapping of unique chars to integers
 chars = sorted(list(set(raw_text)))
 char_to_int = dict((c, i) for i, c in enumerate(chars))
@@ -35,40 +35,53 @@ X = numpy.reshape(dataX, (n_patterns, seq_length, 1))
 X = X / float(n_vocab)
 # one hot encode the output variable
 y = np_utils.to_categorical(dataY)
+
+print(list(y)[0])
+y = y.tolist()
+for i in range(len(y)):
+	y[i].extend([0.0,0.0,0.0])
+y = numpy.array(y)
+
+print(X.shape,y.shape)
 # define the LSTM model
-model = Sequential()
-model.add(LSTM(256, input_shape=(X.shape[1], X.shape[2]), return_sequences=True))
-model.add(Dropout(0.2))
-model.add(LSTM(256))
-model.add(Dropout(0.2))
-model.add(Dense(y.shape[1], activation='softmax'))
 
-model.load_weights('best.hdf5')
+with tf.device('/device:GPU:1'):
+	model = Sequential()
+	model.add(LSTM(256, input_shape=(X.shape[1], X.shape[2]), return_sequences=True))
+	model.add(Dropout(0.2))
+	model.add(LSTM(256))
+	model.add(Dropout(0.2))
+	model.add(Dense(y.shape[1], activation='softmax'))
 
-model.compile(loss='categorical_crossentropy', optimizer='adam')
-# define the checkpoint
-'''filepath="best.hdf5"
-checkpoint = ModelCheckpoint(filepath, monitor='loss', verbose=1, save_best_only=True, mode='min')
-callbacks_list = [checkpoint]
-# fit the model
-model.fit(X, y, epochs=1, batch_size=64, callbacks=callbacks_list, use_multiprocessing = True)'''
+	#model.load_weights('best.hdf5')
+
+	model.compile(loss='categorical_crossentropy', optimizer='adam')
+	# define the checkpoint
+	filepath="best2.hdf5"
+	checkpoint = ModelCheckpoint(filepath, monitor='loss', verbose=1, save_best_only=True, mode='min')
+	callbacks_list = [checkpoint]
+	# fit the model
+	model.fit(X, y, epochs=1, batch_size=64, callbacks=callbacks_list, use_multiprocessing = True)
 
 # pick a random seed
-pattern = choice(raw_text.split('|'))
-pattern = pattern[:int(len(pattern)/4)]
-pattern = [char_to_int[value] for value in pattern]
-print("Seed:")
-print("\"", ''.join([int_to_char[value] for value in pattern]), "\"")
-# generate characters
-reslist = []
-for i in range(1000):
-	x = numpy.reshape(pattern, (1, len(pattern), 1))
-	x = x / float(n_vocab)
-	prediction = model.predict(x, verbose=0)
-	index = numpy.argmax(prediction)
-	result = int_to_char[index]
-	seq_in = [int_to_char[value] for value in pattern]
-	reslist.append(result)
-	pattern.append(index)
-	pattern = pattern[1:len(pattern)]
-print(''.join(reslist))
+	print(raw_text.split('|'))
+	pattern = choice(raw_text.split('|'))
+	pattern = pattern[:int(len(pattern))].rjust(seq_length)
+	if len(pattern) > seq_length:
+		pattern = pattern[:seq_length]
+	pattern = [char_to_int[value] for value in pattern]
+	print("Seed:")
+	print("\"", ''.join([int_to_char[value] for value in pattern]), "\"")
+	# generate characters
+	reslist = []
+	for i in range(1000):
+		x = numpy.reshape(pattern, (1, len(pattern), 1))
+		x = x / float(n_vocab)
+		prediction = model.predict(x, verbose=0)
+		index = numpy.argmax(prediction)
+		result = int_to_char[index]
+		seq_in = [int_to_char[value] for value in pattern]
+		reslist.append(result)
+		pattern.append(index)
+		pattern = pattern[1:len(pattern)]
+	print(''.join(reslist))
