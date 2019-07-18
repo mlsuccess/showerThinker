@@ -8,8 +8,14 @@ import tensorflow as tf
 from keras.utils import np_utils
 from download import *
 from random import choice, randint
+<<<<<<< HEAD
 #raw_text = download_thoughts().lower()
 raw_text = open('out.txt','r').read().lower()
+=======
+import sys
+sys.stdout = open('output.txt','w')
+raw_text = download_thoughts().lower()
+>>>>>>> f2423222e1a49e701b1f42b2d42391dd25624794
 # create mapping of unique chars to integers
 chars = sorted(list(set(raw_text)))
 char_to_int = dict((c, i) for i, c in enumerate(chars))

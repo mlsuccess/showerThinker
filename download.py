@@ -13,7 +13,7 @@ def download_thoughts(sub='showerThoughts'):
         end_date = datetime.date.today() - datetime.timedelta(weeks=4*i)
         start_date = datetime.datetime(start_date.year,start_date.month,start_date.day)
         end_date = datetime.datetime(end_date.year,end_date.month,end_date.day)
-        payload = {'subreddit':sub,'before':str(int(end_date.timestamp())),'after':str(int(start_date.timestamp())),'limit':100}
+        payload = {'subreddit':sub,'before':str(int(end_date.timestamp())),'after':str(int(start_date.timestamp())),'limit':500}
         r = requests.get('https://api.pushshift.io/reddit/search/submission/',params=payload)
         print(r.url)
         try:
