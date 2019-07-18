@@ -5,7 +5,7 @@ from keras.layers import Dropout
 from keras.layers import LSTM
 from keras.callbacks import ModelCheckpoint
 from keras.utils import np_utils
-from download import *
+from .download import *
 # load ascii text and covert to lowercase
 raw_text = download_thoughts('aKqi4PTcNaX3yQ','VBYcbJbY28f4Tucd4agH4-5-UsE','ShowerThinker v1.0.0 by u/iTecX').lower()
 # create mapping of unique chars to integers
@@ -47,3 +47,20 @@ checkpoint = ModelCheckpoint(filepath, monitor='loss', verbose=1, save_best_only
 callbacks_list = [checkpoint]
 # fit the model
 model.fit(X, y, epochs=2, batch_size=64, callbacks=callbacks_list)
+# pick a random seed
+start = numpy.random.randint(0, len(dataX)-1)
+pattern = dataX[start]
+print("Seed:")
+print("\"", ''.join([int_to_char[value] for value in pattern]), "\"")
+# generate characters
+for i in range(1000):
+	x = numpy.reshape(pattern, (1, len(pattern), 1))
+	x = x / float(n_vocab)
+	prediction = model.predict(x, verbose=0)
+	index = numpy.argmax(prediction)
+	result = int_to_char[index]
+	seq_in = [int_to_char[value] for value in pattern]
+	sys.stdout.write(result)
+	pattern.append(index)
+	pattern = pattern[1:len(pattern)]
+print("\nDone.")
