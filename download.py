@@ -24,4 +24,6 @@ def download_thoughts(sub='showerThoughts'):
     print(len(out))
     return '|'.join(out)
 
+download_thoughts()
+
 
