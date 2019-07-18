@@ -50,7 +50,7 @@ model.fit(X, y, epochs=2, batch_size=64, callbacks=callbacks_list)
 # pick a random seed
 start = numpy.random.randint(0, len(dataX)-1)
 pattern = dataX[start]
-print("Seed:")
+print("Generating from seed:")
 print("\"", ''.join([int_to_char[value] for value in pattern]), "\"")
 # generate characters
 for i in range(1000):
@@ -60,7 +60,7 @@ for i in range(1000):
 	index = numpy.argmax(prediction)
 	result = int_to_char[index]
 	seq_in = [int_to_char[value] for value in pattern]
-	sys.stdout.write(result)
+	print(result.split('|')[0])
 	pattern.append(index)
 	pattern = pattern[1:len(pattern)]
-print("\nDone.")
+print("Done.")
